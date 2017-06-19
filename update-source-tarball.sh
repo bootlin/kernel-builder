@@ -112,12 +112,12 @@ fi
 echo $COMMIT_ID > last.commit
 cp last.commit ${STORAGE}/${tree_name}/${branch}/last.commit
 if [ $? != 0 ]; then
-  echo "Error pushing last commit update to API, not updating current commit"
+  echo "Error pushing last commit update, not updating current commit"
   rm linux-src.tar.gz
   rm last.commit
   exit 1
 fi
-
+echo "${GIT_DESCRIBE}" > ${STORAGE}/${tree_name}/${branch}/last.git_describe
 rm last.commit
 rm linux-src.tar.gz
 
