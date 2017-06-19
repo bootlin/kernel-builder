@@ -10,7 +10,7 @@ if ! [ $# -eq 2 ]; then
 fi
 
 ROOT_DIR="$(pwd)"
-STORAGE=${ROOT_DIR}/storage
+STORAGE=${ROOT_DIR}/storage/sources
 WORKSPACE=${ROOT_DIR}/workspace
 TREE_BRANCH="$1#$2"
 
