@@ -11,7 +11,7 @@ fi
 
 ROOT_DIR="$(pwd)"
 STORAGE=${ROOT_DIR}/storage/sources
-WORKSPACE=${ROOT_DIR}/workspace
+WORKSPACE=${ROOT_DIR}/workspace/sources
 TREE_BRANCH="$1#$2"
 
 test -d $WORKSPACE ||mkdir -p $WORKSPACE
