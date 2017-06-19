@@ -20,8 +20,8 @@ import json
 import platform
 import time
 import requests
-import ConfigParser
-from urlparse import urljoin
+import configparser
+from urllib.parse import urljoin
 
 cross_compilers = {
     "arm": "arm-linux-gnueabihf-",
@@ -47,7 +47,7 @@ build_log = None
 build_log_f = None
 
 def usage():
-    print "Usage:", sys.argv[0], "[options] [make target]"
+    print("Usage:", sys.argv[0], "[options] [make target]")
 
 def do_post_retry(url=None, data=None, headers=None, files=None):
     retry = True
@@ -60,8 +60,8 @@ def do_post_retry(url=None, data=None, headers=None, files=None):
                 return response.content
                 retry = False
         except Exception as e:
-            print "ERROR: failed to publish"
-            print e
+            print("ERROR: failed to publish")
+            print(e)
             time.sleep(10)
 
 def do_make(target=None, log=False):
@@ -84,7 +84,7 @@ def do_make(target=None, log=False):
     make_cmd = 'make %s' %make_args
     if target == "oldconfig":
         make_cmd = 'yes "" |' + make_cmd
-    print make_cmd
+    print(make_cmd)
 
     make_stdout = None
     if log:
@@ -122,7 +122,7 @@ use_environment = False
 kconfig_tmpfile_fd, kconfig_tmpfile = tempfile.mkstemp(prefix='kconfig-')
 
 # ARCH
-if os.environ.has_key('ARCH'):
+if 'ARCH' in os.environ:
     arch = os.environ['ARCH']
 else:
     os.environ['ARCH'] = arch
@@ -131,7 +131,7 @@ try:
     opts, args = getopt.getopt(sys.argv[1:], "b:c:ip:sge")
 
 except getopt.GetoptError as err:
-    print str(err) # will print something like "option -a not recognized"
+    print(str(err)) # will print something like "option -a not recognized"
     sys.exit(2)
 for o, a in opts:
     if o == "-b":
@@ -158,32 +158,32 @@ for o, a in opts:
                 os.fsync(kconfig_tmpfile_fd)
                 frag_names.append(a)
             else:
-                print "ERROR: kconfig file/fragment (%s) doesn't exist" %a
+                print("ERROR: kconfig file/fragment (%s) doesn't exist" %a)
                 sys.exit(1)
 
     if o == '-i':
         install = True
     if o == '-p':
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         try:
             config.read(os.path.expanduser('~/.buildpy.cfg'))
             api = config.get(a, 'api')
             token = config.get(a, 'token')
             publish = True
         except:
-            print "ERROR: unable to load configuration file"
+            print("ERROR: unable to load configuration file")
     if o == '-s':
         silent = not silent
     if o == '-g':
         print("Getting build info from git")
         use_git = True
     if o == '-e':
-        print "Reading build variables from environment"
+        print("Reading build variables from environment")
         publish = True
         use_environment = True
 
 # Default umask for file creation
-os.umask(022)
+os.umask(0o22)
 
 # Set number of make threads to number of local processors + 2
 if os.path.exists('/proc/cpuinfo'):
@@ -192,9 +192,9 @@ if os.path.exists('/proc/cpuinfo'):
     make_threads = int(output) + 2
 
 # CROSS_COMPILE
-if cross_compilers.has_key(arch):
+if arch in cross_compilers:
     cross_compile = cross_compilers[arch]
-if os.environ.has_key('CROSS_COMPILE'):
+if 'CROSS_COMPILE' in os.environ:
     cross_compile = os.environ['CROSS_COMPILE']
 else:
     if cross_compile:
@@ -204,7 +204,7 @@ else:
 kbuild_output = kbuild_output_prefix
 if arch:
     kbuild_output += "-%s" % arch
-if os.environ.has_key('KBUILD_OUTPUT'):
+if 'KBUILD_OUTPUT' in os.environ:
     kbuild_output = os.environ['KBUILD_OUTPUT']
 else:
     os.environ['KBUILD_OUTPUT'] = kbuild_output
@@ -216,10 +216,10 @@ build_log_f = open(build_log, 'w', 0)
 # ccache
 ccache = None
 ccache_dir = None
-if not os.environ.has_key('CCACHE_DISABLE'):
+if 'CCACHE_DISABLE' not in os.environ:
     ccache = subprocess.check_output('which ccache | cat', shell=True).strip()
 if ccache and len(ccache):
-    if os.environ.has_key('CCACHE_DIR'):
+    if 'CCACHE_DIR' in os.environ:
         ccache_dir = os.environ['CCACHE_DIR']
     else:
         ccache_dir = os.path.join(os.getcwd(), '.ccache' + '-' + arch)
@@ -269,20 +269,20 @@ if defconfig or frag_names:
         os.chmod(kconfig_frag, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
         if os.path.exists("scripts/kconfig/merge_config.sh"):
             cmd = "scripts/kconfig/merge_config.sh -O %s %s %s > /dev/null 2>&1" %(kbuild_output, base, kconfig_frag)
-            print cmd
+            print(cmd)
             subprocess.call(cmd, shell = True)
         else:
-            print "ERROR: merge_config.sh no present, Trying old 'cat' way."
+            print("ERROR: merge_config.sh no present, Trying old 'cat' way.")
             cmd = "cat %s >> %s" %(kconfig_frag, dot_config)
-            print cmd
+            print(cmd)
             subprocess.call(cmd, shell = True)
             do_make("oldconfig", log=True)
 
 elif os.path.exists(dot_config):
-    print "Re-using .config:", dot_config
+    print("Re-using .config:", dot_config)
     defconfig = "existing"
 else:
-    print "ERROR: Missing kernel config"
+    print("ERROR: Missing kernel config")
     sys.exit(0)
 
 #
@@ -401,7 +401,7 @@ if install:
 
     if result == 0 and boot_cmd:
         cmd = "(cd %s; %s)" % (install_path, boot_cmd)
-        print "Running: %s" % cmd
+        print("Running: %s" % cmd)
         subprocess.call(cmd, shell=True)
 
     bmeta['arch'] = "%s" %arch
@@ -457,7 +457,7 @@ if install:
         bmeta["job"] = job
     else:
         if publish:
-            print "ERROR: TREE_NAME not set, aborting publish step"
+            print("ERROR: TREE_NAME not set, aborting publish step")
             publish = False
 
     # Create JSON format build metadata
@@ -501,10 +501,10 @@ if install:
         upload_url = urljoin(api, '/upload')
         build_url = urljoin(api, '/build')
         publish_response = do_post_retry(url=upload_url, data=build_data, headers=headers, files=artifacts)
-        print "INFO: published artifacts"
+        print("INFO: published artifacts")
         for publish_result in json.loads(publish_response)["result"]:
-            print "%s/%s" % (publish_path, publish_result['filename'])
-        print "INFO: triggering build"
+            print("%s/%s" % (publish_path, publish_result['filename']))
+        print("INFO: triggering build")
         headers['Content-Type'] = 'application/json'
         do_post_retry(url=build_url, data=json.dumps(build_data), headers=headers)
 
