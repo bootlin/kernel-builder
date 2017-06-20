@@ -143,6 +143,7 @@ def build_kernel(source_dir):
     # Build is done, install everything
     install_path = os.path.join(STORAGE, "builds", tree, branch, git_describe,
             arch, defconfig)
+    print("  Installing artifacts in %s" % install_path)
     if not os.path.exists(install_path):
         os.makedirs(install_path)
     system_map = os.path.join(kbuild_output, "System.map")
@@ -197,6 +198,7 @@ def build_kernel(source_dir):
         subprocess.call(cmd, shell=True)
         shutil.copy(os.path.join(tmp_mod_dir, modules_tarball), install_path)
         shutil.rmtree(tmp_mod_dir)
+    print("  Kernel built and installed! tree: %s branch: %s" % (tree, branch))
 
     # Return to main folder and clean temp files
     os.chdir(ROOT_DIR)
