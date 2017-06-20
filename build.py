@@ -89,7 +89,7 @@ def build_kernel(source_dir):
         make_cmd = 'make %s' % make_args
         if target == "oldconfig":
             make_cmd = 'yes "" |' + make_cmd
-        print(make_cmd)
+        print(" ", make_cmd)
 
         make_stdout = None
         if log:
@@ -114,9 +114,7 @@ def build_kernel(source_dir):
     # Handle defconfig
     kconfig_tmpfile_fd, kconfig_tmpfile = tempfile.mkstemp(prefix='kconfig-')
     defs = defconfig.split('+')
-    print(defs)
     for d in defs:
-        print(d)
         if os.path.exists("arch/%s/configs/%s" % (arch, d)):
             do_make(d, log=True)
         elif d.startswith("CONFIG_"):
