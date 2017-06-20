@@ -23,6 +23,7 @@ CROSS_COMPILERS = {
 }
 
 parser = argparse.ArgumentParser(description='Build Kernels')
+parser.add_argument('-a', help='Architecture', metavar='ARCH')
 parser.add_argument('-d', help='Path to the defconfig to build '\
         '(must be a direct child of its arch folder)', metavar='PATH',
         required=True)
@@ -40,6 +41,12 @@ else:
 defconfig_full = os.path.abspath(kwargs['d'])
 arch, defconfig = os.path.split(defconfig_full)
 arch = os.path.basename(arch)
+if kwargs['a']:
+    arch = kwargs['a']
+if arch not in CROSS_COMPILERS:
+    print("Unknown arch %s, valid are: %s" % (arch,
+        sorted(CROSS_COMPILERS.keys())))
+    exit(1)
 cross_compile = CROSS_COMPILERS[arch]
 print("defconfig: ", defconfig)
 print("arch: ", arch)
@@ -104,7 +111,22 @@ def build_kernel(source_dir):
 
     build_log = os.path.join(kbuild_output, "build.log")
     build_log_f = open(build_log, 'w')
-    shutil.copy(defconfig_full, kconfig_file)
+    # Handle defconfig
+    kconfig_tmpfile_fd, kconfig_tmpfile = tempfile.mkstemp(prefix='kconfig-')
+    defs = defconfig.split('+')
+    print(defs)
+    for d in defs:
+        print(d)
+        if os.path.exists("arch/%s/configs/%s" % (arch, d)):
+            do_make(d, log=True)
+        elif d.startswith("CONFIG_"):
+            with open(kconfig_file, "a") as f:
+                f.write(d)
+        else:
+            with open(kconfig_file, 'a') as f1:
+                with open(defconfig_full, 'r') as f2:
+                    f1.write(f2.read())
+
     do_make("olddefconfig", log=True)
 
     # Build the kernel
@@ -181,9 +203,9 @@ def build_kernel(source_dir):
     # Return to main folder and clean temp files
     os.chdir(ROOT_DIR)
     print("  Cleaning up %s" % kbuild_output)
-    # shutil.rmtree(kbuild_output)
+    shutil.rmtree(kbuild_output)
     print("  Cleaning up %s" % build_dir)
-    # shutil.rmtree(build_dir)
+    shutil.rmtree(build_dir)
 
 for root, dirs, files in os.walk(SOURCES):
     if 'linux-src.tar.gz' in files:
