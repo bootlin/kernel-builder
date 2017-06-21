@@ -198,6 +198,8 @@ def build_kernel(source_dir):
         subprocess.call(cmd, shell=True)
         shutil.copy(os.path.join(tmp_mod_dir, modules_tarball), install_path)
         shutil.rmtree(tmp_mod_dir)
+    with open(os.path.join(STORAGE, "builds", tree, branch, "latest"), 'w') as f:
+            f.write(git_describe)
     print("  Kernel built and installed! tree: %s branch: %s" % (tree, branch))
 
     # Return to main folder and clean temp files
