@@ -9,7 +9,7 @@ if ! [ $# -ge 1 ]; then
 fi
 
 ROOT_DIR="$(pwd)"
-STORAGE=${ROOT_DIR}/storage/sources
+STORAGE=${HOME}/storage/sources
 WORKSPACE=${ROOT_DIR}/workspace/sources
 
 test -d $WORKSPACE ||mkdir -p $WORKSPACE

@@ -11,7 +11,7 @@ import subprocess
 
 ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 WORKSPACE = os.path.join(ROOT_DIR, "workspace")
-STORAGE = os.path.join(ROOT_DIR, "storage")
+STORAGE = os.path.join(os.environ['HOME'], "storage")
 SOURCES = os.path.join(STORAGE, "sources")
 CROSS_COMPILERS = {
     "arm": "arm-linux-gnueabihf-",
