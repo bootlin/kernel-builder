@@ -9,8 +9,6 @@ WHITE_LIST = {
             "mvebu-backports/4.12-rc6_backports",
             ],
         "arm64/defconfig": [
-            "mainline/master",
-            "next/master",
             "mvebu-backports/4.12-rc6_backports",
             ],
         }
