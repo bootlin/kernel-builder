@@ -20,12 +20,14 @@ declare -A trees
 trees=(
     [mainline]="http://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
     [next]="http://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git"
+    [linux4sam]="https://github.com/linux4sam/linux-at91.git"
 )
 
 declare -A trees_to_build
 trees_to_build=(
     [mainline]="master"
     [next]="master"
+    [linux4sam]="master"
 )
 
 function build {
