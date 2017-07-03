@@ -1,3 +1,4 @@
 storage
 workspace
 *.log
+__pycache__/

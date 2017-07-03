@@ -9,6 +9,8 @@ import fnmatch
 import tempfile
 import subprocess
 
+from config import WHITE_LIST
+
 ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 WORKSPACE = os.path.join(ROOT_DIR, "workspace")
 STORAGE = os.path.join(os.environ['HOME'], "storage")
@@ -58,6 +60,17 @@ os.umask(0o22)
 def build_kernel(source_dir):
     tree, branch = os.path.split(os.path.abspath(source_dir))
     tree = os.path.basename(tree)
+
+    try:
+        if '/'.join([tree, branch]) not in \
+                WHITE_LIST['/'.join([arch, defconfig])]:
+            print("  This configuration is not white-listed. Aborting")
+            return
+    except:
+        print("  WARNING: this defconfig is not in the white list. "\
+              "Aborting to prevent building everything.")
+        return
+
     sources = os.path.join(source_dir, "linux-src.tar.gz")
     print("  tree: %s, branch: %s" % (tree, branch))
     with open(os.path.join(source_dir, "last.git_describe")) as f:
