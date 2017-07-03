@@ -21,6 +21,7 @@ trees=(
     [mainline]="http://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
     [next]="http://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git"
     [linux4sam]="https://github.com/linux4sam/linux-at91.git"
+    [mvebu-backports]="https://github.com/MISL-EBU-System-SW/mainline-public.git"
 )
 
 declare -A trees_to_build
@@ -28,6 +29,7 @@ trees_to_build=(
     [mainline]="master"
     [next]="master"
     [linux4sam]="master"
+    [mvebu-backports]="4.12-rc6/backports"
 )
 
 function build {
