@@ -45,13 +45,14 @@ function build {
     tree_name=${arr[0]}
     tree_url=${trees[$tree_name]}
     branch=${arr[1]}
+    branch_fs=$(sed "s/\//_/g" <<<"${arr[1]}")
     if [[ -z ${branch} ]]; then
       branch="master"
     fi
 
-    echo "Looking for new commits in ${tree_url} (${tree_name}/${branch})"
+    echo "Looking for new commits in ${tree_url} (${tree_name}/${branch_fs})"
 
-    LAST_COMMIT=`cat ${STORAGE}/${tree_name}/${branch}/last.commit`
+    LAST_COMMIT=`cat ${STORAGE}/${tree_name}/${branch_fs}/last.commit`
 
     COMMIT_ID=`git ls-remote ${tree_url} refs/heads/${branch} | awk '{printf($1)}'`
     if [ -z $COMMIT_ID ]
@@ -62,7 +63,7 @@ function build {
 
     if [ "x$COMMIT_ID" == "x$LAST_COMMIT" ]
     then
-      echo "Nothing new in $tree_name/$branch.  Skipping"
+      echo "Nothing new in $tree_name/$branch_fs.  Skipping"
       return 0
     fi
 
@@ -112,8 +113,8 @@ function build {
       return 1
     fi
 
-    test -d ${STORAGE}/${tree_name}/${branch} ||mkdir -p ${STORAGE}/${tree_name}/${branch}
-    cp linux-src.tar.gz ${STORAGE}/${tree_name}/${branch}/linux-src.tar.gz
+    test -d ${STORAGE}/${tree_name}/${branch_fs} ||mkdir -p ${STORAGE}/${tree_name}/${branch_fs}
+    cp linux-src.tar.gz ${STORAGE}/${tree_name}/${branch_fs}/linux-src.tar.gz
     if [ $? != 0 ]; then
       echo "Error moving file to storage"
       rm linux-src.tar.gz
@@ -121,21 +122,21 @@ function build {
     fi
 
     echo $COMMIT_ID > last.commit
-    cp last.commit ${STORAGE}/${tree_name}/${branch}/last.commit
+    cp last.commit ${STORAGE}/${tree_name}/${branch_fs}/last.commit
     if [ $? != 0 ]; then
       echo "Error pushing last commit update, not updating current commit"
       rm linux-src.tar.gz
       rm last.commit
       return 1
     fi
-    echo "${GIT_DESCRIBE}" > ${STORAGE}/${tree_name}/${branch}/last.git_describe
+    echo "${GIT_DESCRIBE}" > ${STORAGE}/${tree_name}/${branch_fs}/last.git_describe
     rm last.commit
     rm linux-src.tar.gz
 
 
-    cat << EOF > ${WORKSPACE}/${TREE_BRANCH}-build.properties
+    cat << EOF > ${WORKSPACE}/${tree_name}-${branch_fs}-build.properties
 TREE=$tree_url
-SRC_TARBALL=${STORAGE}/${tree_name}/${branch}/${GIT_DESCRIBE}/linux-src.tar.gz
+SRC_TARBALL=${STORAGE}/${tree_name}/${branch_fs}/${GIT_DESCRIBE}/linux-src.tar.gz
 TREE_NAME=$tree_name
 BRANCH=$branch
 COMMIT_ID=$COMMIT_ID
@@ -144,7 +145,7 @@ GIT_DESCRIBE_VERBOSE=${GIT_DESCRIBE_VERBOSE}
 PUBLISH=true
 EOF
 
-    cat ${WORKSPACE}/${TREE_BRANCH}-build.properties
+    cat ${WORKSPACE}/${tree_name}-${branch_fs}-build.properties
     cd ${ROOT_DIR}
 }
 
