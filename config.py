@@ -11,6 +11,9 @@ WHITE_LIST = {
         "arm64/defconfig": [
             "mvebu-backports/4.12-rc6_backports",
             ],
+        "arm/at91_dt_defconfig": [
+            "linux4sam/master",
+            ],
         }
 
 
