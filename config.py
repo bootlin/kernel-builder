@@ -8,7 +8,7 @@ WHITE_LIST = {
             "next/master",
             ],
         "arm64/defconfig": [
-            "mvebu-backports/backports-4.12",
+            "mvebu-backports/backport-4.12",
             "mvebu-backports/devel-4.12_all",
             ],
         "arm/sama5_defconfig": [
