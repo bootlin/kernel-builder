@@ -29,7 +29,8 @@ trees_to_build=(
     [mainline]="master"
     [next]="master"
     [linux4sam]="master"
-    [mvebu-backports]="4.12-rc6/backports"
+    [mvebu-backports]="backports-4.12"
+    [mvebu-backports]="devel-4.12/all"
 )
 
 function build {
