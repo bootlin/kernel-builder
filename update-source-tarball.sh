@@ -2,6 +2,10 @@
 
 # Kindly borrowed from https://github.com/kernelci/kernelci-build-staging/
 
+# This script is kinda dirty and should clearly get rewritten with a more
+# appropriate language. Bash is not made to deal with relational data
+# structures!
+
 if ! [ $# -ge 1 ]; then
     echo "Usage: $0 tree branch"
     echo "   or: $0 all"
@@ -24,21 +28,20 @@ trees=(
     [mvebu-backports]="https://github.com/MISL-EBU-System-SW/mainline-public.git"
 )
 
-declare -A trees_to_build
-trees_to_build=(
-    [mainline]="master"
-    [next]="master"
-    [linux4sam]="master"
-    [mvebu-backports]="backports-4.12"
-    [mvebu-backports]="devel-4.12/all"
+trees_to_build=$(cat - <<EOF
+mainline>master
+next>master
+linux4sam>master
+mvebu-backports>backport-4.12
+mvebu-backports>devel-4.12/all
+EOF
 )
 
 function build {
     cd $WORKSPACE
 
     TREE_BRANCH="$1#$2"
-
-    OFS=${IFS}
+OFS=${IFS}
     IFS='#'
     arr=($TREE_BRANCH)
     IFS=${OFS}
@@ -152,9 +155,11 @@ EOF
 
 if [ "$1" == "all" ]; then
     echo "Building all"
-    for i in "${!trees_to_build[@]}"; do
-        if ! build $i ${trees_to_build[$i]}; then
-            echo "Tree $i failed"
+    for i in ${trees_to_build}; do
+        t=$(cut -d '>' -f 1 <<<$i)
+        b=$(cut -d '>' -f 2 <<<$i)
+        if ! build $t $b; then
+            echo "Tree $t failed"
         fi
     done
 else
