@@ -32,8 +32,8 @@ trees_to_build=$(cat - <<EOF
 mainline>master
 next>master
 linux4sam>master
-mvebu-backports>backport-4.12
-mvebu-backports>devel-4.12/all
+mvebu-backports>backport-4.14
+mvebu-backports>devel-4.14/all
 EOF
 )
 
